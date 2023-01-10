@@ -58,10 +58,20 @@ namespace GDriveLFS
         private V4SignedUrlGenerator _urlGenerator = new V4SignedUrlGenerator();
         private string _credentialFilePath;
 
-        public GCSStorageController()
+        public string Path => $"{Directory.GetCurrentDirectory()}/{CredentialFileName}";
+
+
+        public void Setup()
         {
-            _credentialFilePath = $"{Directory.GetCurrentDirectory()}/{CredentialFileName}";
+            while (!File.Exists(Path))
+            {
+                var path = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+                Directory.SetCurrentDirectory(path);
+            }
+
+            _credentialFilePath = Path;
         }
+
 
         public string GetDownloadURL(string objectName)
         {
@@ -179,6 +189,7 @@ namespace GDriveLFS
                 var requestBody = JsonSerializer.Deserialize<RequestBody>(text);
 
                 StorageController = new GCSStorageController();
+                StorageController.Setup();
 
                 var response = default(ResponseBody);
 
